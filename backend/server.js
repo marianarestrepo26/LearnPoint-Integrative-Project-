@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './src/config/db.js';
-
+import usersRouter from './src/routes/users.js';
 //load of environment vars
 dotenv.config();
 const app=express();
@@ -15,7 +15,7 @@ app.get('/',(req,res)=>{
 })
 
 //routes
-
+app.use('/users',usersRouter);
 
 //start server
 const PORT=process.env.PORT;
