@@ -8,6 +8,11 @@ email VARCHAR(45),
 password VARCHAR(45),
 registration_date DATE);
 
+ALTER TABLE users CHANGE full_name name VARCHAR(45);
+ALTER TABLE users ADD COLUMN last_name VARCHAR(45);
+
+SELECT * FROM users;
+
 CREATE TABLE students(
 id INT AUTO_INCREMENT PRIMARY KEY,
 users_id INT,
