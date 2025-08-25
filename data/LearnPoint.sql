@@ -67,11 +67,15 @@ CREATE TABLE reservation(
 id INT AUTO_INCREMENT PRIMARY KEY,
 reservation_date DATE,
 tutor_availability_id INT,
+tutors_id INT,
 FOREIGN KEY (tutor_availability_id) REFERENCES tutor_availability(id),
 students_id INT,
 FOREIGN KEY (students_id) REFERENCES students(id),
 subjects_id INT,
-FOREIGN KEY (subjects_id) REFERENCES subjects(id));
+FOREIGN KEY (subjects_id) REFERENCES subjects(id)
+FOREIGN KEY (tutors_id) REFERENCES tutors(id));
+
+DROP TABLE reservation;
 
 CREATE TABLE reviews(
 id INT AUTO_INCREMENT PRIMARY KEY,
