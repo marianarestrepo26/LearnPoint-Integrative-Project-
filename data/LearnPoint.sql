@@ -36,6 +36,8 @@ FOREIGN KEY (tutors_id) REFERENCES tutors(id),
 date_availability DATE,
 time_availability TIME);
 
+ALTER TABLE tutor_availability ADD COLUMN days_avaibility ENUM('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+
 CREATE TABLE subjects(
 id INT AUTO_INCREMENT PRIMARY KEY,
 subject_name VARCHAR(45),
