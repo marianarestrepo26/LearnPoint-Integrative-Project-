@@ -36,6 +36,8 @@ FOREIGN KEY (tutors_id) REFERENCES tutors(id),
 date_availability DATE,
 time_availability TIME);
 
+ALTER TABLE tutor_availability ADD COLUMN days_avaibility ENUM('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+
 CREATE TABLE subjects(
 id INT AUTO_INCREMENT PRIMARY KEY,
 subject_name VARCHAR(45),
@@ -65,11 +67,15 @@ CREATE TABLE reservation(
 id INT AUTO_INCREMENT PRIMARY KEY,
 reservation_date DATE,
 tutor_availability_id INT,
+tutors_id INT,
 FOREIGN KEY (tutor_availability_id) REFERENCES tutor_availability(id),
 students_id INT,
 FOREIGN KEY (students_id) REFERENCES students(id),
 subjects_id INT,
-FOREIGN KEY (subjects_id) REFERENCES subjects(id));
+FOREIGN KEY (subjects_id) REFERENCES subjects(id)
+FOREIGN KEY (tutors_id) REFERENCES tutors(id));
+
+DROP TABLE reservation;
 
 CREATE TABLE reviews(
 id INT AUTO_INCREMENT PRIMARY KEY,
