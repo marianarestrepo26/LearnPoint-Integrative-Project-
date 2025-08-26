@@ -77,6 +77,9 @@ FOREIGN KEY (subjects_id) REFERENCES subjects(id),
 FOREIGN KEY (tutors_id) REFERENCES tutors(id)
 );
 
+ALTER TABLE reservation 
+ADD COLUMN status ENUM('PENDING','ASSIGNED','REJECTED') DEFAULT 'PENDING';
+
 CREATE TABLE reviews(
 id INT AUTO_INCREMENT PRIMARY KEY,
 students_id INT,
@@ -87,6 +90,8 @@ tutors_users_id INT,
 FOREIGN KEY (tutors_users_id) REFERENCES tutors(users_id),
 comments TEXT,
 ranking ENUM('1','2','3','4','5'));
+
+SELECT * FROM users;
 
 SHOW TABLES;
 -- consults
