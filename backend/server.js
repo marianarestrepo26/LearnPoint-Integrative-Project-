@@ -1,9 +1,10 @@
-
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './src/config/db.js';
 import usersRouter from './src/routes/users.js';
+import requestsRouter from './src/routes/requests.js';
+
 //load of environment vars
 dotenv.config();
 const app=express();
@@ -17,6 +18,7 @@ app.get('/',(req,res)=>{
 
 //routes
 app.use('/users',usersRouter);
+app.use('/requests', requestsRouter);
 
 //start server
 const PORT=process.env.PORT;
