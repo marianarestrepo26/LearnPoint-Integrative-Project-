@@ -29,6 +29,8 @@ hour_price VARCHAR(45),
 description_tutor VARCHAR(45),
 is_verified ENUM ('TRUE','FALSE'));
 
+ALTER TABLE tutors MODIFY COLUMN hour_price DECIMAL(10,2);
+
 CREATE TABLE tutor_availability(
 id INT AUTO_INCREMENT PRIMARY KEY,
 tutors_id INT,
@@ -74,8 +76,6 @@ FOREIGN KEY (students_id) REFERENCES students(id),
 subjects_id INT,
 FOREIGN KEY (subjects_id) REFERENCES subjects(id),
 FOREIGN KEY (tutors_id) REFERENCES tutors(id));
-
-DROP TABLE reservation;
 
 CREATE TABLE reviews(
 id INT AUTO_INCREMENT PRIMARY KEY,
