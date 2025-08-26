@@ -5,7 +5,7 @@ const router = express.Router();
 
 /**
  * Create class request
- * body: { student_id, skill, message }
+ * body: { student_id, skill, message (optional) }
  */
 router.post("/", async (req, res) => {
   const { student_id, skill, message } = req.body;
@@ -17,7 +17,7 @@ router.post("/", async (req, res) => {
   try {
     const conn = await pool.getConnection();
 
-    // 1. Find subject by skill name
+    // 1. Find subject by name (skill)
     const [subjectRows] = await conn.query(
       "SELECT id FROM subjects WHERE subject_name = ?",
       [skill]
@@ -25,12 +25,12 @@ router.post("/", async (req, res) => {
 
     if (subjectRows.length === 0) {
       conn.release();
-      return res.status(404).json({ message: "Skill not found" });
+      return res.status(404).json({ message: "Skill/Subject not found" });
     }
 
     const subjectId = subjectRows[0].id;
 
-    // 2. Find tutors that meet requirements
+    // 2. Find available tutor with required skill and minimum rating
     const [tutorRows] = await conn.query(
       `
       SELECT t.id, u.name, u.last_name, IFNULL(AVG(r.ranking), 0) as avg_rating
@@ -51,12 +51,14 @@ router.post("/", async (req, res) => {
 
     if (tutorRows.length === 0) {
       conn.release();
-      return res.status(404).json({ message: "No tutors match the requirements" });
+      return res
+        .status(404)
+        .json({ message: "No tutors available that meet the requirements" });
     }
 
     const assignedTutor = tutorRows[0];
 
-    // 3. Store request in reservation table
+    // 3. Store request in reservation table (message not saved in DB, only returned)
     const [result] = await conn.query(
       `
       INSERT INTO reservation (
@@ -64,21 +66,20 @@ router.post("/", async (req, res) => {
         tutor_availability_id, 
         students_id, 
         subjects_id, 
-        tutors_id, 
-        student_message
+        tutors_id
       )
-      VALUES (CURDATE(), NULL, ?, ?, ?, ?)
+      VALUES (CURDATE(), NULL, ?, ?, ?)
       `,
-      [student_id, subjectId, assignedTutor.id, message || null]
+      [student_id, subjectId, assignedTutor.id]
     );
 
     conn.release();
 
     res.status(201).json({
-      message: "Request created successfully",
+      message: "Class request created successfully",
       requestId: result.insertId,
       assignedTutor,
-      studentMessage: message || ""
+      studentMessage: message || "No message provided (not stored in DB)"
     });
   } catch (error) {
     console.error(error);
@@ -98,7 +99,6 @@ router.get("/", async (req, res) => {
       SELECT 
         r.id AS request_id,
         r.reservation_date,
-        r.student_message,
         u_s.name AS student_name,
         u_s.last_name AS student_lastname,
         u_t.name AS tutor_name,
