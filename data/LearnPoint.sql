@@ -37,7 +37,14 @@ FOREIGN KEY (tutors_id) REFERENCES tutors(id),
 date_availability DATE,
 time_availability TIME);
 
-ALTER TABLE tutor_availability ADD COLUMN days_avaibility ENUM('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
+ALTER TABLE tutor_availability DROP COLUMN date_availability;
+ALTER TABLE tutor_availability DROP COLUMN time_availability;
+ALTER TABLE tutor_availability ADD COLUMN start_availability TIME;
+ALTER TABLE tutor_availability ADD COLUMN end_availability TIME;
+
+DROP TABLE tutor_availability;
+
+ALTER TABLE tutor_availability ADD COLUMN days_availability ENUM('Mon','Tue','Wed','Thu','Fri','Sat','Sun');
 
 CREATE TABLE subjects(
 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,8 +98,6 @@ FOREIGN KEY (tutors_users_id) REFERENCES tutors(users_id),
 comments TEXT,
 ranking ENUM('1','2','3','4','5'));
 
-SELECT * FROM users;
-
 SHOW TABLES;
 -- consults
 -- SHOW RANKING OF TUTOR
@@ -122,3 +127,5 @@ GROUP BY
     t.id
 ORDER BY 
     prom_ranking DESC;
+
+ALTER TABLE tutor_availability DROP COLUMN days_avaibility;
