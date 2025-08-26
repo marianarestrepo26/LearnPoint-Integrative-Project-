@@ -91,6 +91,8 @@ FOREIGN KEY (tutors_users_id) REFERENCES tutors(users_id),
 comments TEXT,
 ranking ENUM('1','2','3','4','5'));
 
+SELECT * FROM users;
+
 SHOW TABLES;
 -- consults
 -- SHOW RANKING OF TUTOR

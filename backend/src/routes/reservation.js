@@ -1,3 +1,5 @@
+import mysql from 'mysql2'
+
 router.post("/reservation", async (req, res) => {
   try {
     const { reservation_date, tutor_availability_id, tutors_id, students_id, subjects_id } = req.body;
