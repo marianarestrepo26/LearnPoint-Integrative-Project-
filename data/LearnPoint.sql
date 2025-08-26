@@ -1,4 +1,3 @@
-
 USE bac1o7wnszeodfemghmg;
 
 CREATE TABLE users(
@@ -75,7 +74,8 @@ students_id INT,
 FOREIGN KEY (students_id) REFERENCES students(id),
 subjects_id INT,
 FOREIGN KEY (subjects_id) REFERENCES subjects(id),
-FOREIGN KEY (tutors_id) REFERENCES tutors(id));
+FOREIGN KEY (tutors_id) REFERENCES tutors(id)
+);
 
 CREATE TABLE reviews(
 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -87,3 +87,33 @@ tutors_users_id INT,
 FOREIGN KEY (tutors_users_id) REFERENCES tutors(users_id),
 comments TEXT,
 ranking ENUM('1','2','3','4','5'));
+
+SHOW TABLES;
+-- consults
+-- SHOW RANKING OF TUTOR
+SELECT 
+    u.name AS tutor_name,
+    u.last_name AS tutor_last_name,
+    AVG(CAST(r.ranking AS UNSIGNED)) AS prom_ranking
+FROM 
+    reviews r
+JOIN tutors t ON r.tutors_id = t.id
+JOIN users u ON t.users_id = u.id
+WHERE 
+    u.name = 'Santiago'
+GROUP BY 
+    u.id;
+
+-- LIST RANKING TUTORS
+    SELECT 
+    u.name,
+    u.last_name,
+    AVG(CAST(r.ranking AS UNSIGNED)) AS prom_ranking
+FROM 
+    tutors t
+JOIN users u ON t.users_id = u.id
+LEFT JOIN reviews r ON r.tutors_id = t.id
+GROUP BY 
+    t.id
+ORDER BY 
+    prom_ranking DESC;
