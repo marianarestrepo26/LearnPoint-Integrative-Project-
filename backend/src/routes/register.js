@@ -1,5 +1,4 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
 import pool from '../config/db.js'; // connection to MySQL
 
 const router = express.Router();
@@ -19,14 +18,10 @@ router.post('/register', async (req, res) => {
         if (userExists.length > 0) {
             return res.status(400).json({ error: "The email already exists" });
         }
-
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
         // Insert into the database
         await pool.query(
             'INSERT INTO users (name, last_name, age, email, password, registration_date) VALUES (?, ?, ?, ?, ?, NOW())',
-            [name, last_name, age || null, email, hashedPassword]
+            [name, last_name, age, email, password]
         );
 
         // Success response
