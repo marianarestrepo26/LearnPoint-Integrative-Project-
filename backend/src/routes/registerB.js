@@ -1,15 +1,16 @@
 import express from 'express';
 import pool from '../config/db.js'; // connection to MySQL
+import { Router } from 'express';
 
 const router = express.Router();
 
 // Register user
 router.post('/register', async (req, res) => {
     try {
-        const { mode, name, last_name, age, email, password } = req.body;
+        const { name, last_name, age, email, password } = req.body;
 
         // Validate obligatory fields
-        if (!mode || !name || !last_name || !email || !password) {
+        if ( !name || !last_name ||!age || !email || !password) {
             return res.status(400).json({ error: "All fields are required" });
         }
 
@@ -21,7 +22,7 @@ router.post('/register', async (req, res) => {
         
         // Insert into the database
         await pool.query(
-            'INSERT INTO users (name, last_name, age, email, password, registration_date) VALUES (?, ?, ?, ?, ?, NOW())',
+            'INSERT INTO users (name, last_name, age, email, password) VALUES (?, ?, ?, ?, ?)',
             [name, last_name, age , email, password]
         );
 

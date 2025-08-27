@@ -170,7 +170,7 @@ export function initRegister(navigate) {
 
     let profile = {
       mode,
-      name, last_name, age, email
+      name, last_name, age, email, password
     };
 
     if (mode === "tutor") {
@@ -221,7 +221,7 @@ export function initRegister(navigate) {
       showError("registerError", data.message || "Error al registrar usuario.");
     }
   } catch (err) {
-    showError("registerError", "Error de conexión con el servidor.");
+    showError("registerError", "Error de conexión con el servidor.". err);
   }
 });
 
