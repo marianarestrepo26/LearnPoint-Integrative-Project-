@@ -6,6 +6,7 @@ import usersRouter from './src/routes/users.js';
 import requestsRouter from './src/routes/requests.js';
 import reservationRouter from './src/routes/reservation.js';//
 import reviewsRouter from './src/routes/reviews.js';
+import registerRouter from './src/routes/register.js';
 
 //load of environment vars
 dotenv.config();
@@ -23,6 +24,7 @@ app.use('/users',usersRouter);
 app.use('/requests', requestsRouter);
 app.use('/reservation',reservationRouter);
 app.use('/reviews',reviewsRouter);
+app.use('/register',registerRouter);
 
 //start server
 const PORT=process.env.PORT;
