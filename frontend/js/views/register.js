@@ -153,7 +153,7 @@ export function initRegister(navigate) {
     registerBtn.className = "button is-danger is-fullwidth";
   });
 
-  registerForm.addEventListener("submit", (e) => {
+  registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     // Basic required fields always present
@@ -205,13 +205,25 @@ export function initRegister(navigate) {
       };
     }
 
-    // Save minimal info to localStorage (simulate registration)
-    localStorage.setItem("lp_pref_role", mode);
-    localStorage.setItem("lp_register_profile", JSON.stringify(profile));
+    
 
-    // Go to login
-    navigate("login");
-  });
+  try {
+    const res = await fetch("http://localhost:3000/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      alert("Usuario registrado correctamente");
+      navigate("login");
+    } else {
+      showError("registerError", data.message || "Error al registrar usuario.");
+    }
+  } catch (err) {
+    showError("registerError", "Error de conexión con el servidor.");
+  }
+});
 
   function showError(id, msg) {
     const el = document.getElementById(id);
