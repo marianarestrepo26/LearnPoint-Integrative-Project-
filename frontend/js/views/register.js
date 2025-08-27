@@ -208,7 +208,7 @@ export function initRegister(navigate) {
     
 
   try {
-    const res = await fetch("http://localhost:3000/registerB", {
+    const res = await fetch("http://localhost:3000/registerB/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(profile)
