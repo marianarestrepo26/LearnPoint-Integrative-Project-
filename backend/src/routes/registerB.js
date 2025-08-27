@@ -6,10 +6,10 @@ const router = express.Router();
 // Register user
 router.post('/register', async (req, res) => {
     try {
-        const { name, last_name, age, email, password } = req.body;
+        const { mode, name, last_name, age, email, password } = req.body;
 
         // Validate obligatory fields
-        if (!name || !last_name || !email || !password) {
+        if (!mode || !name || !last_name || !email || !password) {
             return res.status(400).json({ error: "All fields are required" });
         }
 
