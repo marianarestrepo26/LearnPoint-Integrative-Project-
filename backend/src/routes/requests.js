@@ -4,7 +4,7 @@ import pool from "../config/db.js";
 const router = express.Router();
 
 /**
- * 1. Create class request
+ * Create class request
  * body: { student_id, skill, message (optional) }
  */
 router.post("/", async (req, res) => {
@@ -90,7 +90,7 @@ router.post("/", async (req, res) => {
 });
 
 /**
- * 2. Reject a request by tutor (Simple rejection + auto-reassign)
+ * Reject a request by tutor (Simple rejection + auto-reassign)
  */
 router.patch("/:id/reject", async (req, res) => {
   const { id } = req.params; // reservation id
