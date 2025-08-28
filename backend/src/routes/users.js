@@ -4,84 +4,71 @@ import pool from "../config/db.js";
 const router = express.Router();
 
 // GET all users
-router.get("/", async (req, res) => {
-  try {
-    const [results] = await pool.query("SELECT * FROM users");
+router.get("/", (req, res) => {
+  pool.query("SELECT * FROM users", (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
     res.json(results);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  });
 });
 
 // GET user by ID
-router.get("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [results] = await pool.query("SELECT * FROM users WHERE id = ?", [
-      id,
-    ]);
+router.get("/:id", (req, res) => {
+  const { id } = req.params;
+  pool.query("SELECT * FROM users WHERE id = ?", [id], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
 
     if (results.length === 0)
       return res.status(404).json({ message: "USER NOT FOUND..." });
 
     res.json(results[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  });
 });
 
 // POST create new user
-router.post("/", async (req, res) => {
-  try {
-    const { name, last_name, age, email, password, registration_date } =
-      req.body;
+router.post("/", (req, res) => {
+  const { name, last_name, age, email, password, registration_date } = req.body;
 
-    await pool.query(
-      "INSERT INTO users (name,last_name,age,email,password,registration_date) VALUES (?,?,?,?,?,?)",
-      [name, last_name, age, email, password, registration_date]
-    );
-
-    res.json({ message: "USER CREATED!" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  pool.query(
+    "INSERT INTO users (name, last_name, age, email, password, registration_date) VALUES (?,?,?,?,?,?)",
+    [name, last_name, age, email, password, registration_date],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ message: "USER CREATED!" });
+    }
+  );
 });
 
 // PUT update user
-router.put("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { name, last_name, age, email, password, registration_date } =
-      req.body;
+router.put("/:id", (req, res) => {
+  const { id } = req.params;
+  const { name, last_name, age, email, password, registration_date } = req.body;
 
-    const [result] = await pool.query(
-      "UPDATE users SET name=?, last_name=?, age=?, email=?, password=?, registration_date=? WHERE id=?",
-      [name, last_name, age, email, password, registration_date, id]
-    );
+  pool.query(
+    "UPDATE users SET name=?, last_name=?, age=?, email=?, password=?, registration_date=? WHERE id=?",
+    [name, last_name, age, email, password, registration_date, id],
+    (err, result) => {
+      if (err) return res.status(500).json({ error: err.message });
 
-    if (result.affectedRows === 0)
-      return res.status(404).json({ message: "USER NOT FOUND..." });
+      if (result.affectedRows === 0)
+        return res.status(404).json({ message: "USER NOT FOUND..." });
 
-    res.json({ message: "USER UPDATED" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+      res.json({ message: "USER UPDATED" });
+    }
+  );
 });
 
 // DELETE user
-router.delete("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
+router.delete("/:id", (req, res) => {
+  const { id } = req.params;
 
-    const [result] = await pool.query("DELETE FROM users WHERE id = ?", [id]);
+  pool.query("DELETE FROM users WHERE id = ?", [id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
 
     if (result.affectedRows === 0)
       return res.status(404).json({ message: "USER NOT FOUND..." });
 
     res.json({ message: "USER ELIMINATED" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  });
 });
 
 export default router;
