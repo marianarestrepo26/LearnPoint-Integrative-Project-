@@ -32,10 +32,10 @@ cd LearnPoint-Integrative-Project
    ```
 3. Create a `.env` file inside `/backend/` with the following variables:  
    ```env
-   DB_HOST=b2tawyp1lvh1euhwxuec-mysql.services.clever-cloud.com
-   DB_USER=ucbrsfvufnrhfqiz
-   DB_PASS=oNdH1jaNAx1JmBHbqucp
-   DB_NAME=b2tawyp1lvh1euhwxuec
+   DB_HOST=bmpde3nqhk7fj6wky6ge-mysql.services.clever-cloud.com
+   DB_USER=usomk6chjdizxehp
+   DB_PASS=3MIhqJgNmFRrdpev7DA8
+   DB_NAME=bmpde3nqhk7fj6wky6ge
    DB_PORT=3306
    PORT=3000
    ```
@@ -92,6 +92,17 @@ cd LearnPoint-Integrative-Project
 ✅ Reviews and comments module.  
 ✅ Academic calendar integration.  
 ✅ Relational database model with MySQL.  
+
+---
+
+## 🌟 Users
+
+- **juan.perez@example.com   | 12345**
+- **maria.lopez@example.com  | 123**
+
+- **carlos.ramirez@example.com | 2025**
+- **ana.torres@example.com   | 5656**
+- **laura.martinez@example.com | 7789**
 
 ---
 

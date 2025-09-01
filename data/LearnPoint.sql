@@ -1,4 +1,4 @@
-USE b2tawyp1lvh1euhwxuec;
+USE bmpde3nqhk7fj6wky6ge;
 
 CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -91,16 +91,20 @@ CREATE TABLE requests (
     message TEXT
 );
 
--- Create a student user
-INSERT INTO users (name, last_name, age, email, password)
-VALUES ('Vanessa', 'Gomez', 20, 'vanessa@email.com', '1234');
--- Link it with the students
-INSERT INTO students (users_id)
-VALUES (LAST_INSERT_ID());
+INSERT INTO users (name, last_name, age, email, password) VALUES
+('Juan', 'Pérez', 20, 'juan.perez@example.com', '12345'),
+('María', 'López', 22, 'maria.lopez@example.com', '123');
 
--- Create a tutor user
-INSERT INTO users (name, last_name, age, email, password)
-VALUES ('Mariana', 'Restrepo', 30, 'maria@email.com', '5678');
--- Link it with tutors
-INSERT INTO tutors (users_id, mode_tutoring, hour_price, description_tutor)
-VALUES (LAST_INSERT_ID(), 'online', 50.00, 'HTML5');
+INSERT INTO users (name, last_name, age, email, password) VALUES
+('Carlos', 'Ramírez', 30, 'carlos.ramirez@example.com', '2025'),
+('Ana', 'Torres', 28, 'ana.torres@example.com', '5656'),
+('Laura', 'Martínez', 35, 'laura.martinez@example.com', '7789');
+
+INSERT INTO students (users_id) VALUES
+(1),  -- Juan
+(2);  -- María
+
+INSERT INTO tutors (users_id, mode_tutoring, hour_price, description_tutor) VALUES
+(3, 'Online', 50.00, 'Tutor de JS'),
+(4, 'Presencial', 60.00, 'Tutor de HTML5'),
+(5, 'Online', 70.00, 'Tutor de CSS');
