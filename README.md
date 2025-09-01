@@ -11,6 +11,31 @@ The project was developed as an **integrative academic work**, combining **front
 You can access the deployed project here:  
 👉 [Backend](https://learnpoint-integrative-project-1.onrender.com ) 
 👉 [Frontend](https://learnpoint-integrative-project-1.onrender.com ) 
+
+---
+
+## 🛠️ Technologies Used  
+
+
+- **Frontend:**  
+  - HTML5, CSS3, JavaScript  
+  - Lottie Animations (`.json`)  
+  - FullCalendar (Core, DayGrid, TimeGrid, Interaction)  v."^6.1.19",
+
+- **Backend:**  
+  - Node.js  
+  - Express.js                                           v."5.1.0"
+  - CORS (Cross-Origin Resource Sharing)                 v."2.8.5"
+  - Dotenv (environment variables management)            v."17.2.1"
+  - Nodemon (development auto-reload)                    v."3.1.10"
+
+- **Database:**  
+  - MySQL  
+  - mysql2 (Node.js connector for MySQL)  
+
+- **Others:**  
+  - Git & GitHub for version control 
+
 ---
 
 ## ⚙️ How to Run the Project  
@@ -30,12 +55,12 @@ cd LearnPoint-Integrative-Project
    ```bash
    npm install
    ```
-3. Create a `.env` file inside `/backend/` with the following variables:  
+3. Create a .env file with your database credentials:  
    ```env
-   DB_HOST=bmpde3nqhk7fj6wky6ge-mysql.services.clever-cloud.com
-   DB_USER=usomk6chjdizxehp
-   DB_PASS=3MIhqJgNmFRrdpev7DA8
-   DB_NAME=bmpde3nqhk7fj6wky6ge
+   DB_HOST=localhost
+   DB_USER=your_user
+   DB_PASS=your_password
+   DB_NAME=learnpoint
    DB_PORT=3306
    PORT=3000
    ```
@@ -60,30 +85,6 @@ cd LearnPoint-Integrative-Project
 
 ---
 
-## 🛠️ Technologies Used  
-
-
-- **Frontend:**  
-  - HTML5, CSS3, JavaScript  
-  - Lottie Animations (`.json`)  
-  - FullCalendar (Core, DayGrid, TimeGrid, Interaction)  
-
-- **Backend:**  
-  - Node.js  
-  - Express.js  
-  - CORS (Cross-Origin Resource Sharing)  
-  - Dotenv (environment variables management)  
-  - Nodemon (development auto-reload)  
-
-- **Database:**  
-  - MySQL  
-  - mysql2 (Node.js connector for MySQL)  
-
-- **Others:**  
-  - Git & GitHub for version control 
-
----
-
 ## 🌟 Features  
 
 ✅ User management (register, login, CRUD).  
@@ -95,15 +96,14 @@ cd LearnPoint-Integrative-Project
 
 ---
 
-## 🌟 Users
-
-- **juan.perez@example.com   | 12345**
-- **maria.lopez@example.com  | 123**
-
-- **carlos.ramirez@example.com | 2025**
-- **ana.torres@example.com   | 5656**
-- **laura.martinez@example.com | 7789**
-
+## 📂 Project Structure
+```
+📦 LearnPoint
+ ┣ 📂 backend
+ ┣ 📂 frontend
+ ┣ 📂 data
+ ┗ README.md
+```
 ---
 
 ## 👥 Team Credits  
@@ -118,4 +118,4 @@ cd LearnPoint-Integrative-Project
 
 ## 📌 Version  
 
-- **Version 1.0.0** – Initial integrative project release  
+- **Version 0.0.1** – Initial integrative project release  
