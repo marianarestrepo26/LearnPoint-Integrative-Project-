@@ -12,16 +12,12 @@ import registerBRouter from "./src/routes/registerB.js";
 import calendarRoutes from "./src/routes/calendar.js";
 import subjectsRouter from "./src/routes/subjects.js";
 
-// Load environment vars
+//load of environment vars
 dotenv.config();
 const app = express();
 
 // Middlewares
-app.use(cors({
-  origin: "https://learnpoint-integrative-project-3.onrender.com", // frontend URL en Render
-  methods: ["GET","POST","PUT","DELETE"],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // Endpoint
@@ -38,8 +34,8 @@ app.use("/registerB", registerBRouter);
 app.use("/calendar", calendarRoutes);
 app.use("/subjects", subjectsRouter);
 
-// Start server
+//start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`✅ Server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
