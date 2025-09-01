@@ -205,19 +205,15 @@ export function initRegister(navigate) {
 
         profile = {
           ...profile,
-          hourPrice: hourPrice ? Number(hourPrice) : null,
+          hour_price: hourPrice ? Number(hourPrice) : null,
           description,
           subjects: subjects
-            ? subjects
-                .split(",")
-                .map((s) => s.trim())
-                .filter(Boolean)
+            ? subjects.split(",").map((s) => s.trim()).filter(Boolean)
             : [],
-          availability: {
-            days,
-            timeFrom,
-            timeTo,
-          },
+          working_days: days,
+          from: timeFrom,
+          to: timeTo
+          ,
         };
       }
 
