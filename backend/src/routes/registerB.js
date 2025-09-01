@@ -1,74 +1,117 @@
-import express from 'express';
-import pool from '../config/db.js'; // config of database connection
-import { Router } from 'express';
+import express from "express";
+import pool from "../config/db.js";
 
 const router = express.Router();
 
-// register Tutor
-router.post('/registerTutor', (req, res) => {
-    const { name, last_name, age, email, password, hour_price, description, subjects, working_days, from, to } = req.body;
+// Register Tutor
+router.post("/registerTutor", async (req, res) => {
+  const {
+    name,
+    last_name,
+    age,
+    email,
+    password,
+    hour_price,
+    description,
+    subjects,
+    working_days,
+    from,
+    to,
+  } = req.body;
 
-    // valid obligatories fields tutors
-    if (!name || !last_name || !age || !email || !password || !hour_price || !description || !subjects || !working_days || !from || !to) {
-        return res.status(400).json({ error: "All fields are required" });
+  // Valid obligatories fields tutors
+  if (
+    !name ||
+    !last_name ||
+    !age ||
+    !email ||
+    !password ||
+    !hour_price ||
+    !description ||
+    !subjects ||
+    !working_days ||
+    !from ||
+    !to
+  ) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    // Valid if the email exists
+    const [existing] = await pool.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "The email already exists" });
     }
 
-    // Valid if the email are exist
-    pool.query('SELECT * FROM users WHERE email = ?', [email], (err, results) => {
-        if (err) {
-            console.error("Error during SELECT query:", err);
-            return res.status(500).json({ error: "Server error" });
-        }
+    // Insert in the users table
+    const [userResult] = await pool.query(
+      "INSERT INTO users (name, last_name, age, email, password) VALUES (?, ?, ?, ?, ?)",
+      [name, last_name, age, email, password]
+    );
+    const userId = userResult.insertId; // get the id of users students
 
-        if (results.length > 0) {
-            return res.status(400).json({ error: "The email already exists" });
-        }
+    // Insert in the tutors table
+    const [tutorResult] = await pool.query(
+      "INSERT INTO tutors (users_id, hour_price, description_tutor) VALUES (?, ?, ?)",
+      [userId, hour_price, description]
+    );
+    const tutorId = tutorResult.insertId; // get the id of users tutors
 
-        // insert in the users table
-        pool.query('INSERT INTO users (name, last_name, age, email, password) VALUES (?, ?, ?, ?, ?)', 
-        [name, last_name, age, email, password], (err, userResult) => {
-            if (err) {
-                console.error("Error during INSERT into users:", err);
-                return res.status(500).json({ error: "Server error" });
-            }
+    // Insert availability tutors
+    await pool.query(
+      "INSERT INTO tutor_availability (tutors_id, days_availability, start_availability, end_availability) VALUES (?, ?, ?, ?)",
+      [tutorId, working_days, from, to]
+    );
 
-            const userId = userResult.insertId;  // get the id of users students
+    // Insert subjects of the tutor
+    if (Array.isArray(subjects)) {
+      for (const subject of subjects) {
+        await pool.query(
+          "INSERT INTO subjects (subject_name, tutors_id) VALUES (?, ?)",
+          [subject, tutorId]
+        );
+      }
+    }
 
-            // insert in the tutors table
-            pool.query('INSERT INTO tutors (users_id, hour_price, description_tutor) VALUES (?, ?, ?)', 
-            [userId, hour_price, description], (err, tutorResult) => {
-                if (err) {
-                    console.error("Error during INSERT into tutors:", err);
-                    return res.status(500).json({ error: "Server error" });
-                }
+    res.status(201).json({ message: "Tutor registered successfully" });
+  } catch (err) {
+    console.error("Error during tutor registration:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
-                const tutorId = tutorResult.insertId;  // get the id of users tutors
+// Register Student
+router.post("/registerStudent", async (req, res) => {
+  const { name, last_name, age, email, password } = req.body;
 
-                // Insert availability tutors
-                pool.query('INSERT INTO tutor_availability (tutors_id, days_availability, start_availability, end_availability) VALUES (?, ?, ?, ?)', 
-                [tutorId, working_days, start_availability,end_availability  ], (err, availabilityResult) => {
-                    if (err) {
-                        console.error("Error during INSERT into tutor_availability:", err);
-                        return res.status(500).json({ error: "Server error" });
-                    }
+  if (!name || !last_name || !age || !email || !password) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
 
-                    // Inserts of subjects of the tutors
-                    subjects.forEach(subject => {
-                        pool.query('INSERT INTO subjects (subject_name, tutors_id) VALUES (?, ?)', 
-                        [subject, tutorId], (err, subjectResult) => {
-                            if (err) {
-                                console.error("Error during INSERT into subjects:", err);
-                                return res.status(500).json({ error: "Server error" });
-                            }
-                        });
-                    });
+  try {
+    const [existing] = await pool.query("SELECT * FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "The email already exists" });
+    }
 
-                    // GG
-                    res.status(201).json({ message: "Tutor registered successfully" });
-                });
-            });
-        });
-    });
+    const [userResult] = await pool.query(
+      "INSERT INTO users (name, last_name, age, email, password) VALUES (?, ?, ?, ?, ?)",
+      [name, last_name, age, email, password]
+    );
+    const userId = userResult.insertId; // get the id of users students
+
+    // Insert in the students table
+    await pool.query("INSERT INTO students (users_id) VALUES (?)", [userId]);
+
+    res.status(201).json({ message: "Student registered successfully" });
+  } catch (err) {
+    console.error("Error during student registration:", err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 export default router;

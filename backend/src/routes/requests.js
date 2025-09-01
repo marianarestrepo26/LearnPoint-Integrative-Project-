@@ -3,222 +3,164 @@ import pool from "../config/db.js";
 
 const router = express.Router();
 
-/**
- * Create class request
- * body: { student_id, skill, message (optional) }
- */
-router.post("/", (req, res) => {
-  const { student_id, skill, message } = req.body;
+// CREATE REQUEST
 
-  if (!student_id || !skill) {
-    return res.status(400).json({ error: "student_id and skill are required" });
-  }
+router.post("/", async (req, res) => {
+  try {
+    const { student_id, tutor_id, message } = req.body;
+    if (!student_id || !tutor_id)
+      return res
+        .status(400)
+        .json({ error: "student_id and tutor_id are required" });
 
-  pool.getConnection((err, conn) => {
-    if (err) {
-      console.error("Connection error:", err);
-      return res.status(500).json({ error: "Database connection error" });
-    }
-
-    // 1. find subject
-    conn.query(
-      "SELECT id FROM subjects WHERE subject_name = ?",
-      [skill],
-      (err, subjectRows) => {
-        if (err) {
-          conn.release();
-          console.error(err);
-          return res.status(500).json({ error: "Query error (subjects)" });
-        }
-
-        if (subjectRows.length === 0) {
-          conn.release();
-          return res.status(404).json({ message: "Skill/Subject not found" });
-        }
-
-        const subjectId = subjectRows[0].id;
-
-        // 2. find tutor
-        conn.query(
-          `
-          SELECT t.id, u.name, u.last_name, IFNULL(AVG(r.ranking), 0) as avg_rating
-          FROM tutors t
-          JOIN users u ON u.id = t.users_id
-          JOIN subjects s ON s.tutors_id = t.id
-          LEFT JOIN reviews r ON r.tutors_id = t.id
-          WHERE s.id = ?
-            AND t.is_verified = 'TRUE'
-            AND t.mode_tutoring = 'AVAILABLE'
-          GROUP BY t.id
-          HAVING avg_rating >= 3.5
-          ORDER BY avg_rating DESC
-          LIMIT 1
-          `,
-          [subjectId],
-          (err, tutorRows) => {
-            if (err) {
-              conn.release();
-              console.error(err);
-              return res.status(500).json({ error: "Query error (tutors)" });
-            }
-
-            if (tutorRows.length === 0) {
-              conn.release();
-              return res.status(404).json({
-                message: "No tutors available that meet the requirements",
-              });
-            }
-
-            const assignedTutor = tutorRows[0];
-
-            // 3. insert in reservation
-            conn.query(
-              `
-              INSERT INTO reservation (
-                reservation_date, 
-                tutor_availability_id, 
-                students_id, 
-                subjects_id, 
-                tutors_id,
-                status
-              )
-              VALUES (CURDATE(), NULL, ?, ?, ?, 'ASSIGNED')
-              `,
-              [student_id, subjectId, assignedTutor.id],
-              (err, result) => {
-                conn.release();
-
-                if (err) {
-                  console.error(err);
-                  return res.status(500).json({ error: "Insert error" });
-                }
-
-                res.status(201).json({
-                  message: "Class request created successfully",
-                  requestId: result.insertId,
-                  assignedTutor,
-                  status: "ASSIGNED",
-                  studentMessage: message || "No message provided (not stored in DB)",
-                });
-              }
-            );
-          }
-        );
-      }
+    const [studentRows] = await pool.query(
+      "SELECT id, users_id FROM students WHERE id = ?",
+      [student_id]
     );
-  });
+    const [tutorRows] = await pool.query(
+      "SELECT id, users_id FROM tutors WHERE id = ?",
+      [tutor_id]
+    );
+
+    if (!studentRows.length)
+      return res.status(404).json({ error: "Student not found" });
+    if (!tutorRows.length)
+      return res.status(404).json({ error: "Tutor not found" });
+
+    const [result] = await pool.query(
+      "INSERT INTO requests (student_id, tutor_id, status, message) VALUES (?, ?, 'pending', ?)",
+      [student_id, tutor_id, message || null]
+    );
+
+    res.status(201).json({
+      message: "Request created",
+      requestId: result.insertId,
+      student_user_id: studentRows[0].users_id,
+      tutor_user_id: tutorRows[0].users_id,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
-/**
- * Reject a request by tutor (Simple rejection + auto-reassign)
- */
-router.patch("/:id/reject", (req, res) => {
-  const { id } = req.params; // reservation id
-  const { tutorId } = req.body; // tutor rejecting the request
+// GET / REQUESTS
 
-  pool.getConnection((err, conn) => {
-    if (err) {
-      console.error("Connection error:", err);
-      return res.status(500).json({ message: "Database connection error" });
+router.get("/", async (req, res) => {
+  try {
+    const { tutor_id, student_id } = req.query;
+
+    let query = `
+      SELECT r.id, r.status, r.student_id, r.tutor_id, r.message,
+             su.name AS student_name, su.last_name AS student_last_name,
+             tu.name AS tutor_name, tu.last_name AS tutor_last_name,
+             st.users_id AS student_user_id,
+             tt.users_id AS tutor_user_id
+      FROM requests r
+      JOIN students st ON st.id = r.student_id
+      JOIN users su ON su.id = st.users_id
+      JOIN tutors tt ON tt.id = r.tutor_id
+      JOIN users tu ON tu.id = tt.users_id
+    `;
+
+    const params = [];
+    if (tutor_id) {
+      query += " WHERE r.tutor_id = ?";
+      params.push(tutor_id);
+    } else if (student_id) {
+      query += " WHERE r.student_id = ?";
+      params.push(student_id);
     }
 
-    // 1. Get reservation
-    conn.query("SELECT * FROM reservation WHERE id = ?", [id], (err, rows) => {
-      if (err) {
-        conn.release();
-        console.error(err);
-        return res.status(500).json({ message: "Query error (reservation)" });
-      }
+    const [rows] = await pool.query(query, params);
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
-      if (rows.length === 0) {
-        conn.release();
-        return res.status(404).json({ message: "Reservation not found" });
-      }
+// ACCEPT / REJECT REQUEST
 
-      const reservation = rows[0];
+router.put("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { tutor_id, status } = req.body;
 
-      // 2. Verify tutor
-      if (reservation.tutors_id !== Number(tutorId)) {
-        conn.release();
-        return res
-          .status(403)
-          .json({ message: "Not authorized to reject this request" });
-      }
+    if (!tutor_id || !["accepted", "rejected"].includes(status))
+      return res.status(400).json({ error: "Invalid tutor_id or status" });
 
-      // 3. Mark as rejected
-      conn.query(
-        "UPDATE reservation SET tutors_id = NULL, status = 'REJECTED' WHERE id = ?",
-        [id],
-        (err) => {
-          if (err) {
-            conn.release();
-            console.error(err);
-            return res.status(500).json({ message: "Update error (reject)" });
-          }
+    // Obtain the application and validate the tutor
+    const [rows] = await pool.query(
+      `SELECT r.*, 
+              s.id AS student_db_id,          -- ← Changed: id de students
+              t.id AS tutor_db_id,            -- ← Changed: id de tutors
+              s.users_id AS student_user_id, 
+              t.users_id AS tutor_user_id,
+              su.name AS student_name,
+              su.last_name AS student_last_name,
+              tu.name AS tutor_name,
+              tu.last_name AS tutor_last_name
+       FROM requests r
+       JOIN students s ON s.id = r.student_id
+       JOIN tutors t ON t.id = r.tutor_id
+       JOIN users su ON su.id = s.users_id
+       JOIN users tu ON tu.id = t.users_id
+       WHERE r.id = ? AND r.tutor_id = ?`,
+      [id, tutor_id]
+    );
 
-          // 4. Try to auto-reassign
-          conn.query(
-            `
-            SELECT t.id, u.name, u.last_name, IFNULL(AVG(r.ranking), 0) as avg_rating
-            FROM tutors t
-            JOIN users u ON u.id = t.users_id
-            JOIN subjects s ON s.tutors_id = t.id
-            LEFT JOIN reviews r ON r.tutors_id = t.id
-            WHERE s.id = ?
-              AND t.is_verified = 'TRUE'
-              AND t.mode_tutoring = 'AVAILABLE'
-              AND t.id <> ?
-            GROUP BY t.id
-            HAVING avg_rating >= 3.5
-            ORDER BY avg_rating DESC
-            LIMIT 1
-            `,
-            [reservation.subjects_id, tutorId],
-            (err, tutorRows) => {
-              if (err) {
-                conn.release();
-                console.error(err);
-                return res.status(500).json({ message: "Query error (reassign)" });
-              }
+    if (!rows.length)
+      return res
+        .status(404)
+        .json({ error: "Request not found or tutor mismatch" });
 
-              if (tutorRows.length > 0) {
-                const newTutor = tutorRows[0];
-                conn.query(
-                  "UPDATE reservation SET tutors_id = ?, status = 'ASSIGNED' WHERE id = ?",
-                  [newTutor.id, id],
-                  (err) => {
-                    conn.release();
+    if (rows[0].status !== "pending")
+      return res.status(400).json({ error: "Request already processed" });
 
-                    if (err) {
-                      console.error(err);
-                      return res
-                        .status(500)
-                        .json({ message: "Update error (assign)" });
-                    }
+    // Update status
+    await pool.query("UPDATE requests SET status = ? WHERE id = ?", [
+      status,
+      id,
+    ]);
 
-                    return res.json({
-                      message: "Request rejected and reassigned automatically.",
-                      reservationId: id,
-                      newTutor,
-                      status: "ASSIGNED",
-                    });
-                  }
-                );
-              } else {
-                conn.release();
-                res.json({
-                  message:
-                    "Request rejected. No new tutor available, it remains REJECTED for now.",
-                  reservationId: id,
-                  status: "REJECTED",
-                });
-              }
-            }
-          );
-        }
-      );
+    res.json({
+      message: `Request ${status} successfully`,
+      student_db_id: rows[0].student_db_id,
+      tutor_db_id: rows[0].tutor_db_id,
+      student_user_id: rows[0].student_user_id,
+      tutor_user_id: rows[0].tutor_user_id,
+      student_name: rows[0].student_name,
+      student_last_name: rows[0].student_last_name,
+      tutor_name: rows[0].tutor_name,
+      tutor_last_name: rows[0].tutor_last_name,
     });
-  });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query("SELECT * FROM requests WHERE id = ?", [
+      id,
+    ]);
+
+    if (!rows.length)
+      return res.status(404).json({ error: "Request not found" });
+    if (rows[0].status !== "pending")
+      return res
+        .status(400)
+        .json({ error: "Only pending requests can be cancelled" });
+
+    await pool.query("DELETE FROM requests WHERE id = ?", [id]);
+    res.json({ message: "Request cancelled successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;

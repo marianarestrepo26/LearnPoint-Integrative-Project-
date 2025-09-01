@@ -121,7 +121,7 @@ export function initRegister(navigate) {
       renderer: "svg",
       loop: true,
       autoplay: true,
-      path: "./assets/animations/world.json"
+      path: "./assets/animations/world.json",
     });
   }
 
@@ -156,74 +156,95 @@ export function initRegister(navigate) {
   registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Basic required fields always present
-    const name = document.getElementById("name").value.trim();
-    const last_name  = document.getElementById("last_name").value.trim();
-    const age       = document.getElementById("age").value.trim();
-    const email     = document.getElementById("email").value.trim();
-    const password  = document.getElementById("password").value.trim();
+    try {
+      // Basic required fields always present
+      const name = document.getElementById("name").value.trim();
+      const last_name = document.getElementById("last_name").value.trim();
+      const age = document.getElementById("age").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value.trim();
 
-    if (!name || !last_name || !age || !email || !password) {
-      showError("registerError", "Please complete all required fields.");
-      return;
-    }
-
-    let profile = {
-      mode,
-      name, last_name, age, email, password
-    };
-
-    if (mode === "tutor") {
-      const hourPrice   = document.getElementById("hourPrice").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const subjects    = document.getElementById("subjects").value.trim();
-      const timeFrom    = document.getElementById("timeFrom").value;
-      const timeTo      = document.getElementById("timeTo").value;
-      const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(d => d.value);
-
-      // Validate availability
-      availabilityError.classList.add("is-hidden");
-      if (days.length === 0) {
-        availabilityError.textContent = "Please select at least one working day.";
-        availabilityError.classList.remove("is-hidden");
-        return;
-      }
-      if (!timeFrom || !timeTo || timeFrom >= timeTo) {
-        availabilityError.textContent = "Please provide a valid time range (From must be earlier than To).";
-        availabilityError.classList.remove("is-hidden");
+      if (!name || !last_name || !age || !email || !password) {
+        showError("registerError", "Please complete all required fields.");
         return;
       }
 
-      profile = {
-        ...profile,
-        hourPrice: hourPrice ? Number(hourPrice) : null,
-        description,
-        subjects: subjects ? subjects.split(",").map(s => s.trim()).filter(Boolean) : [],
-        availability: {
-          days, timeFrom, timeTo
-        }
+      let profile = {
+        mode,
+        name,
+        last_name,
+        age,
+        email,
+        password,
       };
-    }
 
-    
+      if (mode === "tutor") {
+        const hourPrice = document.getElementById("hourPrice").value.trim();
+        const description = document.getElementById("description").value.trim();
+        const subjects = document.getElementById("subjects").value.trim();
+        const timeFrom = document.getElementById("timeFrom").value;
+        const timeTo = document.getElementById("timeTo").value;
+        const days = Array.from(
+          document.querySelectorAll('input[name="days"]:checked')
+        ).map((d) => d.value);
 
-  try {
-    const res = await fetch("http://localhost:3000/registerB/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(profile)
-    });
-    const data = await res.json();
-    if (res.ok) {
-      alert("Usuario registrado correctamente");
-      navigate("login");
-    } else {
-      showError("registerError", data.message || "Error al registrar usuario.");
+        // Validate availability
+        availabilityError.classList.add("is-hidden");
+        if (days.length === 0) {
+          availabilityError.textContent =
+            "Please select at least one working day.";
+          availabilityError.classList.remove("is-hidden");
+          return;
+        }
+        if (!timeFrom || !timeTo || timeFrom >= timeTo) {
+          availabilityError.textContent =
+            "Please provide a valid time range (From must be earlier than To).";
+          availabilityError.classList.remove("is-hidden");
+          return;
+        }
+
+        profile = {
+          ...profile,
+          hourPrice: hourPrice ? Number(hourPrice) : null,
+          description,
+          subjects: subjects
+            ? subjects
+                .split(",")
+                .map((s) => s.trim())
+                .filter(Boolean)
+            : [],
+          availability: {
+            days,
+            timeFrom,
+            timeTo,
+          },
+        };
+      }
+
+      const url =
+        mode === "tutor"
+          ? "http://localhost:3000/registerB/registerTutor"
+          : "http://localhost:3000/registerB/registerStudent";
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profile),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert("Usuario registrado correctamente");
+        navigate("login");
+      } else {
+        showError(
+          "registerError",
+          data.message || "Error al registrar usuario."
+        );
+      }
+    } catch (err) {
+      showError("registerError", "Error de conexión con el servidor.".err);
     }
-  } catch (err) {
-    showError("registerError", "Error de conexión con el servidor.". err);
-  }
-});
+  });
 
   function showError(id, msg) {
     const el = document.getElementById(id);

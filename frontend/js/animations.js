@@ -1,9 +1,7 @@
-// animations.js
-
 // Home view animations
 export function initHomeEffects() {
   // Navbar burger toggle
-  document.querySelectorAll(".navbar-burger").forEach(el => {
+  document.querySelectorAll(".navbar-burger").forEach((el) => {
     el.addEventListener("click", () => {
       const target = el.dataset.target;
       const menu = document.getElementById(target);
@@ -14,13 +12,30 @@ export function initHomeEffects() {
 
   // GSAP animations
   if (document.querySelector("#home .title")) {
-    gsap.from("#home .title", { opacity: 0, y: -50, duration: 1, ease: "power3.out" });
+    gsap.from("#home .title", {
+      opacity: 0,
+      y: -50,
+      duration: 1,
+      ease: "power3.out",
+    });
   }
   if (document.querySelector("#home .subtitle")) {
-    gsap.from("#home .subtitle", { opacity: 0, y: 50, duration: 1, delay: 0.4, ease: "power3.out" });
+    gsap.from("#home .subtitle", {
+      opacity: 0,
+      y: 50,
+      duration: 1,
+      delay: 0.4,
+      ease: "power3.out",
+    });
   }
   if (document.querySelector("#home .button")) {
-    gsap.from("#home .button", { opacity: 0, scale: 0.9, duration: 0.7, delay: 0.9, ease: "back.out(1.7)" });
+    gsap.from("#home .button", {
+      opacity: 0,
+      scale: 0.9,
+      duration: 0.7,
+      delay: 0.9,
+      ease: "back.out(1.7)",
+    });
   }
 
   // Lottie Globe
@@ -31,12 +46,15 @@ export function initHomeEffects() {
       renderer: "svg",
       loop: true,
       autoplay: true,
-      path: "./assets/animations/globe.json"
+      path: "./assets/animations/globe.json",
     });
   }
 
   // ScrollTrigger effects
-  if (typeof ScrollTrigger !== "undefined" && document.getElementById("features")) {
+  if (
+    typeof ScrollTrigger !== "undefined" &&
+    document.getElementById("features")
+  ) {
     gsap.registerPlugin(ScrollTrigger);
     gsap.from("#features .card-tech", {
       scrollTrigger: { trigger: "#features", start: "top 80%" },
@@ -44,7 +62,7 @@ export function initHomeEffects() {
       y: 50,
       duration: 0.6,
       stagger: 0.15,
-      ease: "power2.out"
+      ease: "power2.out",
     });
   }
 }
@@ -57,23 +75,7 @@ export function initDashboardEffects() {
       y: 30,
       duration: 0.7,
       stagger: 0.2,
-      ease: "power2.out"
-    });
-  }
-}
-
-// Calendar animations
-export function initCalendarEffects() {
-  if (document.querySelector("#calendar .calendar-header")) {
-    gsap.from("#calendar .calendar-header", { opacity: 0, y: -30, duration: 0.6, ease: "power3.out" });
-  }
-  if (document.querySelectorAll("#calendar .calendar-day")) {
-    gsap.from("#calendar .calendar-day", {
-      opacity: 0,
-      scale: 0.9,
-      duration: 0.5,
-      stagger: 0.05,
-      ease: "back.out(1.7)"
+      ease: "power2.out",
     });
   }
 }
@@ -86,10 +88,15 @@ export function initChatsEffects() {
       x: -50,
       duration: 0.5,
       stagger: 0.1,
-      ease: "power2.out"
+      ease: "power2.out",
     });
   }
   if (document.querySelector("#chats .chat-input")) {
-    gsap.from("#chats .chat-input", { opacity: 0, y: 20, duration: 0.5, delay: 0.3 });
+    gsap.from("#chats .chat-input", {
+      opacity: 0,
+      y: 20,
+      duration: 0.5,
+      delay: 0.3,
+    });
   }
 }

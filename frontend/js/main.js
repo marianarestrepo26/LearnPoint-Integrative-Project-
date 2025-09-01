@@ -1,12 +1,15 @@
-// Simple hash-based SPA router
 import home from "./views/home.js";
 import { login, initLogin } from "./views/login.js";
 import { register, initRegister } from "./views/register.js";
 import { dashboard, initDashboard } from "./views/dashboard.js";
-import { calendar, initCalendar } from "./views/calendar.js";
+import { calendar, loadCalendarView } from "./views/calendar.js";
 import { chats, initChats } from "./views/chats.js";
 import { auth } from "./auth.js";
-import { initHomeEffects, initDashboardEffects, initCalendarEffects, initChatsEffects } from "./animations.js";
+import {
+  initHomeEffects,
+  initDashboardEffects,
+  initChatsEffects,
+} from "./animations.js";
 
 const outlet = document.getElementById("main");
 
@@ -16,24 +19,48 @@ function render(html) {
 
 function afterMount(route) {
   switch (route) {
-    case "home":      initHomeEffects(); break;
-    case "login":     initLogin(navigate); break;
-    case "register":  initRegister(navigate); break;
-    case "dashboard": initDashboard(navigate); initDashboardEffects(); break;
-    case "calendar":  initCalendar(navigate); initCalendarEffects(); break;
-    case "chats":     initChats(navigate); initChatsEffects(); break;
+    case "home":
+      initHomeEffects();
+      break;
+    case "login":
+      initLogin(navigate);
+      break;
+    case "register":
+      initRegister(navigate);
+      break;
+    case "dashboard":
+      initDashboard(navigate);
+      initDashboardEffects();
+      break;
+    case "calendar":
+      loadCalendarView(); // render + init + logout
+      break;
+    case "chats":
+      initChats(navigate);
+      initChatsEffects();
+      break;
   }
   wireNavLinks();
+  wireLogout();
 }
 
-
 function wireNavLinks() {
-  document.querySelectorAll("[data-route]").forEach(a => {
+  document.querySelectorAll("[data-route]").forEach((a) => {
     a.addEventListener("click", (e) => {
       e.preventDefault();
       navigate(a.getAttribute("data-route"));
     });
   });
+}
+
+function wireLogout() {
+  const btn = document.getElementById("logoutBtn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      auth.clearUser();
+      window.location.hash = "#/login";
+    });
+  }
 }
 
 const routes = {
@@ -45,7 +72,7 @@ const routes = {
   "#/register": "register",
   "#/dashboard": "dashboard",
   "#/calendar": "calendar",
-  "#/chats": "chats"
+  "#/chats": "chats",
 };
 
 function navigate(routeName) {
@@ -61,31 +88,53 @@ function routeHandler() {
   const key = location.hash || "#/home";
   const route = routes[key] || "home";
 
-  if (route === "home" && auth.isLoggedIn()) {
+  // Redirect home if already logged in
+  if (route === "home" && auth.isAuthenticated()) {
     navigate("dashboard");
     return;
   }
 
+  // Protected routes
   const protectedRoutes = ["dashboard", "calendar", "chats"];
-  if (protectedRoutes.includes(route) && !auth.isLoggedIn()) {
+  if (protectedRoutes.includes(route) && !auth.isAuthenticated()) {
     render(login());
-    afterMount("login");
+    requestAnimationFrame(() => afterMount("login"));
     return;
   }
 
   switch (route) {
-    case "home":      render(home()); afterMount("home"); break;
-    case "login":     render(login()); afterMount("login"); break;
-    case "register":  render(register()); afterMount("register"); break;
-    case "dashboard": render(dashboard(auth.role())); afterMount("dashboard"); break;
-    case "calendar":  render(calendar()); afterMount("calendar"); break;
-    case "chats":     render(chats()); afterMount("chats"); break;
-    default:          render(home()); afterMount("home");
+    case "home":
+      render(home());
+      requestAnimationFrame(() => afterMount("home"));
+      break;
+    case "login":
+      render(login());
+      requestAnimationFrame(() => afterMount("login"));
+      break;
+    case "register":
+      render(register());
+      requestAnimationFrame(() => afterMount("register"));
+      break;
+    case "dashboard":
+      render(dashboard(auth.getUser()?.role));
+      requestAnimationFrame(() => afterMount("dashboard"));
+      break;
+    case "calendar":
+      // loadCalendarView already renders + init
+      loadCalendarView();
+      break;
+    case "chats":
+      render(chats());
+      requestAnimationFrame(() => afterMount("chats"));
+      break;
+    default:
+      render(home());
+      requestAnimationFrame(() => afterMount("home"));
   }
 }
 
 window.addEventListener("hashchange", routeHandler);
 document.addEventListener("DOMContentLoaded", routeHandler);
 
-// Optional: expose
+// Optional: expose navigate globally
 window._navigate = navigate;
