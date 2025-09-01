@@ -9,8 +9,8 @@ The project was developed as an **integrative academic work**, combining **front
 ## 🌍 Deployment  
 
 You can access the deployed project here:  
-👉 [LearnPoint - Live Demo](pegamos el link de el despliegue ) 
-
+👉 [Backend](https://learnpoint-integrative-project-1.onrender.com ) 
+👉 [Frontend](https://learnpoint-integrative-project-1.onrender.com ) 
 ---
 
 ## ⚙️ How to Run the Project  
