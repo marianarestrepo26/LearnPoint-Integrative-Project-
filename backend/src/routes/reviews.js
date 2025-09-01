@@ -1,7 +1,7 @@
-import express from 'express';
-import pool from '../config/db.js';
+import express from "express";
+import pool from "../config/db.js";
 
-const router=express.Router();
+const router = express.Router();
 
 //LIST OF TUTORS WITH RANKING
 router.get("/ranking", async (req, res) => {
@@ -23,11 +23,12 @@ router.get("/ranking", async (req, res) => {
   }
 });
 
-//ranking by tutor_name
+//RANKING BY TUTOR_NAME
 router.get("/ranking/:name", async (req, res) => {
   try {
     const { name } = req.params;
-    const [rows] = await pool.query(`
+    const [rows] = await pool.query(
+      `
       SELECT 
         u.name AS tutor_name,
         u.last_name AS tutor_last_name,
@@ -37,7 +38,9 @@ router.get("/ranking/:name", async (req, res) => {
       JOIN users u ON t.users_id = u.id
       WHERE u.name = ?
       GROUP BY u.id
-    `, [name]);
+    `,
+      [name]
+    );
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: err.message });

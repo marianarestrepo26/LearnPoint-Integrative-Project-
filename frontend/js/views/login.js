@@ -15,6 +15,7 @@ export function login() {
       <div class="columns is-centered">
         <div class="column is-5">
           <div class="box has-text-centered">
+          <img src="./assets/images/logo.png" alt="LearnPoint logo" class="logo">
             <h1 id="loginTitle" class="title has-text-centered mb-5">Welcome back</h1>
             <h4 id="loginSubtitle" class="subtitle has-text-centered mb-5">Select your role</h4>
 
@@ -33,7 +34,7 @@ export function login() {
               <form id="loginForm">
                 <div class="field">
                   <div class="control has-icons-left">
-                    <input type="text" class="input" id="loginEmail" placeholder="Email or username" required />
+                    <input type="text" class="input" id="loginEmail" placeholder="Email" required />
                     <span class="icon is-small is-left"><i class="fas fa-envelope"></i></span>
                   </div>
                 </div>
@@ -55,7 +56,7 @@ export function login() {
 
                 <p class="has-text-centered mt-3">
                   Don’t have an account?
-                  <a data-route="register" href="#/register">Register</a>
+                  <a data-route="register" class="register-login" href="#/register">Register</a>
                 </p>
               </form>
             </div>
@@ -99,15 +100,49 @@ export function initLogin(navigate) {
     loginError.classList.add("is-hidden");
   });
 
-  loginForm.addEventListener("submit", (e) => {
+  loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     if (!userType) {
+      loginError.textContent = "Please select a role first";
       loginError.classList.remove("is-hidden");
       return;
     }
+
     const email = document.getElementById("loginEmail").value.trim();
-    // Fake authentication
-    auth.login({ role: userType, username: email || (userType === "tutor" ? "Tutor" : "Student") });
-    navigate("dashboard");
+    const password = document.getElementById("loginPassword").value;
+
+    try {
+      const response = await fetch("http://localhost:3000/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) throw new Error(data.message || "Login failed");
+
+      // Here we validate that the role matches the selected button
+      if (data.role !== userType) {
+        throw new Error(
+          `This user is registered as ${data.role}, not ${userType}`
+        );
+      }
+
+      localStorage.setItem("lp_userId", data.user.id); // ID real
+      localStorage.setItem("lp_username", data.user.name); // opcional
+      localStorage.setItem("lp_role", data.role); // tutor/student
+
+      // Save info and redirect
+      auth.login({
+        ...data.user, // Includes id, name, last_name, email, studentId, tutorId
+        role: data.role, // We explicitly added the role
+      });
+      navigate("dashboard");
+    } catch (err) {
+      loginError.textContent = err.message;
+      loginError.classList.remove("is-hidden");
+    }
   });
 }

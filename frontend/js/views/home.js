@@ -1,96 +1,93 @@
 export default function home() {
   return `
-  <!-- Navbar -->
-  <nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-      <a class="navbar-item" data-route="home" href="#/home">
-        <img src="./assets/images/page_logo.png" width="30" height="30" alt="LearnPoint logo">
-        <span class="ml-2 has-text-weight-bold has-text-white">LearnPoint</span>
+  <!-- Modern Navbar -->
+  <nav class="home-navbar" id="home-navbar">
+    <div class="navbar-container">
+      <a class="navbar-brand" data-route="home" href="#/home">
+        <span>LearnPoint</span>
       </a>
-
-      <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasic">
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-        <span aria-hidden="true"></span>
-      </a>
-    </div>
-
-    <div id="navbarBasic" class="navbar-menu">
-      <div class="navbar-end">
-        <a href="#about" class="nav-btn navbar-item">About</a>
-        <a href="#features" class="nav-btn navbar-item">Features</a>
-        <a data-route="login" href="#/login" class="button navbar-item login-btn">Login</a>
-        <a data-route="register" href="#/register" class="button navbar-item register-btn">Register</a>
+      
+      <div class="navbar-nav">
+        <a href="#about" class="nav-link">About</a>
+        <a href="#features" class="nav-link">Features</a>
+        <div class="nav-buttons">
+          <a data-route="login" href="#/login" class="nav-btn login">Login</a>
+          <a data-route="register" href="#/register" class="nav-btn register">Get Started</a>
+        </div>
       </div>
     </div>
   </nav>
 
-  <!-- Hero / Home -->
-  <section class="hero is-fullheight" id="home">
-    <div class="hero-body has-text-centered">
-      <div class="content-box">
-        <h1 class="title">Welcome to LearnPoint</h1>
-        <h2 class="subtitle">Your space to learn and grow</h2>
-        <a data-route="register" href="#/register" class="button is-primary">Get Started</a>
+  <!-- Modern Hero -->
+  <section class="home-hero" id="home">
+    <div class="hero-content">
+    <h1>Welcome to</h1>
+    <img src="./assets/images/logo.png"alt="" width="400" height="400">
+      <h2>Your space to learn and grow with expert tutors</h2>
+      <a data-route="register" href="#/register" class="hero-cta">Start Learning Today</a>
+    </div>
+    
+    <!-- Globe Animation -->
+    <div class="globe-container">
+      <div class="globe">
+        <div class="globe-dots">
+          <div class="globe-dot"></div>
+          <div class="globe-dot"></div>
+          <div class="globe-dot"></div>
+          <div class="globe-dot"></div>
+        </div>
       </div>
-      <div class="globe-animation" id="globe-animation" aria-hidden="true"></div>
     </div>
   </section>
 
-  <section id="about" class="section has-background-light">
-    <div class="container card has-text-centered about-home">
-      <h2 class="title">About Us</h2>
-      <div class="home-text">
-      <p class="subtitle">
+  <!-- About Section -->
+  <section id="about" class="home-section" style="background: #f7fafc;">
+    <div class="section-container">
+      <h2 class="section-title">About Us</h2>
+      <p class="section-subtitle">
         We connect students with passionate tutors so they can learn, build projects, 
         and grow together in the world of software development.
       </p>
-      <p class="subtitle">
+      <p class="section-subtitle">
         At LearnPoint, we believe in learning by doing. We bring you tutors 
         that guide you step by step in web, mobile, data, cloud and more.
       </p>
-      </div> 
     </div>
   </section>
 
-  <section id="features" class="section has-background-light features-home">
-    <div class="container has-text-centered">
-      <h2 class="title">Learn Programming Languages</h2>
-      <p class="subtitle">Master the most in-demand technologies</p>
+  <!-- Features Section -->
+  <section id="features" class="home-section">
+    <div class="section-container">
+      <h2 class="section-title">Learn Programming Languages</h2>
+      <p class="section-subtitle">Master the most in-demand technologies</p>
 
-      <div class="cards-container">
-        <div class="card-tech">
+      <div class="tech-grid">
+        <div class="tech-card">
           <i class="devicon-html5-plain colored"></i>
           <p>HTML5</p>
         </div>
-        <div class="card-tech">
+        <div class="tech-card">
           <i class="devicon-css3-plain colored"></i>
           <p>CSS3</p>
         </div>
-        <div class="card-tech">
+        <div class="tech-card">
           <i class="devicon-javascript-plain colored"></i>
           <p>JavaScript</p>
         </div>
-        <div class="card-tech">
+        <div class="tech-card">
           <i class="devicon-python-plain colored"></i>
           <p>Python</p>
         </div>
-        <div class="card-tech">
+        <div class="tech-card">
           <i class="devicon-java-plain colored"></i>
           <p>Java</p>
         </div>
-        <div class="card-tech">
+        <div class="tech-card">
           <i class="devicon-react-original colored"></i>
           <p>React</p>
         </div>
       </div>
     </div>
   </section>
-
-  <footer class="footer">
-    <div class="content has-text-centered">
-      <p>&copy; 2025 LearnPoint. All rights reserved.</p>
-    </div>
-  </footer>
   `;
 }
